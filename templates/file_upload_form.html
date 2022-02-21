@@ -1,0 +1,164 @@
+<html>  
+<head>  
+    <title>upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+
+</head>  
+<style>
+    div h3 {
+        margin:10px;
+    }
+    #load {
+        display:flex;
+        justify-content: space-between;
+         width: 280px; 
+         padding-top: 10px;
+    }
+    #output {
+        display:flex;
+        justify-content: space-between;
+         width: 330px
+    }
+    .icon {
+        margin-top: 16px;
+        font-size: 13px;
+    }
+</style>
+<body>
+    <div class="wrapper" id="upload">
+        <div>
+            <div style="display: flex;justify-content: center;">
+                <div class="file-upload">
+                    <input type="file" id="but_upload" accept=".csv"/>
+                    <i class="fa fa-upload"></i>
+                </div>
+            </div>
+            
+            <div>
+                <div id="load" style="display: none">
+                    <h3>Load file : </h3>
+                    <a href="#" style=" display: flex;"><h3 id="input_name"></h3> <i class="fa fa-file-text-o icon" ></i></a>
+                </div>
+                <div id="output" style="display: none">
+                    <h3>Output file : </h3>
+                    <a href="#" style=" display: flex;" id="run"><h3 id="output_name"></h3> <i class="fa fa-file-text-o icon" ></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class='container' id='start'>
+        <button class='four' id="start">Scrapping start</button>
+    </div>
+
+    <div id="loading" class="scene" style="--hue: 260; --saturation: 60; --lightness: 60; position:absolute; display:none">
+        <div class="word">
+        <div class="letter__wrap" style="--index: 0">
+            <div class="letter" data-letter="L"><span class="letter__panel" aria-hidden="true">L</span><span class="letter__panel" aria-hidden="true">W</span><span class="letter__panel" aria-hidden="true">L</span><span class="letter__panel" aria-hidden="true">W</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 1">
+            <div class="letter" data-letter="o"><span class="letter__panel" aria-hidden="true">o</span><span class="letter__panel" aria-hidden="true">a</span><span class="letter__panel" aria-hidden="true">o</span><span class="letter__panel" aria-hidden="true">a</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 2">
+            <div class="letter" data-letter="a"><span class="letter__panel" aria-hidden="true">a</span><span class="letter__panel" aria-hidden="true">i</span><span class="letter__panel" aria-hidden="true">a</span><span class="letter__panel" aria-hidden="true">i</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 3">
+            <div class="letter" data-letter="d"><span class="letter__panel" aria-hidden="true">d</span><span class="letter__panel" aria-hidden="true">t</span><span class="letter__panel" aria-hidden="true">d</span><span class="letter__panel" aria-hidden="true">t</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 4">
+            <div class="letter" data-letter="i"><span class="letter__panel" aria-hidden="true">i</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel" aria-hidden="true">i</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 5">
+            <div class="letter" data-letter="n"><span class="letter__panel" aria-hidden="true">n</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel" aria-hidden="true">n</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel"></span></div>
+        </div>
+        <div class="letter__wrap" style="--index: 6">
+            <div class="letter" data-letter="g"><span class="letter__panel" aria-hidden="true">g</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel" aria-hidden="true">g</span><span class="letter__panel" aria-hidden="true">.</span><span class="letter__panel"></span></div>
+        </div>
+        </div>
+    </div>
+</body>  
+
+<script>
+    $(document).ready(function(){ 
+
+        $("#but_upload").change(function(){
+            var fd = new FormData();
+            var files = $('#but_upload')[0].files;
+            $('#load').show();
+            $('#input_name').text(files[0].name)
+            fd.append('file',files[0]);
+
+            $.ajax({
+                url: '/success',
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function(response){
+                    if(response.status == '0') {
+                        toastr.success("File Uploaded !", 'Information')
+                    }else {
+                        toastr.error(response.name, "Information")
+                    }
+                },
+            });
+        });
+
+        $('#start').click(function() {
+            if($('#but_upload').val() == '') {
+                toastr.error("please upload CSV file !", 'Information')
+            } else {
+                $('#upload').hide()
+                $('#load').hide()
+                $('#start').hide()
+                $('#loading').show()
+                var fd = new FormData();
+                var files = $('#but_upload')[0].files;
+                fd.append('file',files[0]);
+                toastr.warning("Scrapping have started.", 'Information')
+                $.ajax({
+                    url: '/start',
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function(response){
+                        console.log(response.name)
+                        $('#upload').show()
+                        $('#start').show()
+                        $('#loading').hide()
+                        $('#output').show()
+                        $('#load').show();
+                        $('#output_name').text(response.name)
+                        toastr.success("Success Scrapping!", 'Information')
+                    },
+                });
+            }
+            
+        })
+
+        $('#run').click(function() {
+            $('#upload').hide()
+            $('#load').hide()
+            $('#start').hide()
+            $('#loading').show()
+            $.post(
+                "/run", 
+                {name: $('#output_name').text()}, 
+                function(result){
+                    if(result == 'complete') {
+                        $('#upload').show()
+                        $('#start').show()
+                        $('#loading').hide()
+                        $('#output').show()
+                        $('#load').show();
+                    }
+                });   
+        })
+    });
+</script>
+</html>  
